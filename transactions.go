@@ -21,7 +21,9 @@ func NewZcashClient(host, user, pass string) *Client {
 }
 
 type TxResult struct {
-	Hex string
+	Hex      string
+	Complete bool
+	Errors   []interface{}
 }
 
 func (c *Client) SignRawTransaction(rawtx string) (string, error) {
@@ -39,7 +41,12 @@ func (c *Client) SignRawTransaction(rawtx string) (string, error) {
 		return "", sigout.Error
 	}
 
-	return sigout.Result.(*TxResult).Hex, nil
+	txr := sigout.Result.(*TxResult)
+	if len(txr.Errors) > 0 {
+		return "", fmt.Errorf("%v", txr.Errors[0])
+	}
+
+	return txr.Hex, nil
 }
 
 func (c *Client) SendRawTransaction(sigtx string) (string, error) {
