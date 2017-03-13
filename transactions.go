@@ -98,12 +98,18 @@ func (c *Client) GetTransactionValue(tx, addr string) (float64, error) {
 		return 0, err
 	}
 
+	var total float64
+	var found bool
 	for _, res := range out.Result.Details {
 		if res.Address == addr && res.Category == "receive" {
-			return res.Amount, nil
+			total += res.Amount
+			found = true
 		}
 	}
-	return 0, fmt.Errorf("no outputs for given address found")
+	if !found {
+		return 0, fmt.Errorf("no outputs for given address found")
+	}
+	return total, nil
 }
 
 type UnspentTx struct {
