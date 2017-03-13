@@ -20,22 +20,25 @@ func NewZcashClient(host, user, pass string) *Client {
 	}
 }
 
+type TxResult struct {
+	Hex string
+}
+
 func (c *Client) SignRawTransaction(rawtx string) (string, error) {
 	req := &jrpc.Request{
 		Method: "signrawtransaction",
 		Params: []string{rawtx},
 	}
 
-	var sigout struct {
-		Result struct {
-			Hex string
-		}
-	}
-
+	sigout := jrpc.Response{ResultType: TxResult{}}
 	err := c.cli.Do(req, &sigout)
 	if err != nil {
 		return "", err
 	}
+	if sigout.Error != nil {
+		return "", sigout.Error
+	}
+
 	return sigout.Result.Hex, nil
 }
 
