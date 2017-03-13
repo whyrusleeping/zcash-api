@@ -39,7 +39,7 @@ func (c *Client) SignRawTransaction(rawtx string) (string, error) {
 		return "", sigout.Error
 	}
 
-	return sigout.Result.Hex, nil
+	return sigout.Result.(*TxResult).Hex, nil
 }
 
 func (c *Client) SendRawTransaction(sigtx string) (string, error) {
