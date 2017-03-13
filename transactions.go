@@ -95,3 +95,27 @@ func (c *Client) GetTransactionValue(tx, addr string) (float64, error) {
 	}
 	return 0, fmt.Errorf("no outputs for given address found")
 }
+
+type UnspentTx struct {
+	Txid   string `json:"txid"`
+	Vout   int
+	Amount float64
+}
+
+func (c *Client) GetUnspents() ([]*UnspentTx, error) {
+	req := &jrpc.Request{
+		Method: "listunspent",
+		Params: []interface{}{0},
+	}
+
+	resp := new(jrpc.Response)
+	resp.ResultType = []*UnspentTx{}
+	if err := c.cli.Do(req, resp); err != nil {
+		return nil, err
+	}
+	if resp.Error != nil {
+		return nil, resp.Error
+	}
+
+	return *resp.Result.(*[]*UnspentTx), nil
+}
